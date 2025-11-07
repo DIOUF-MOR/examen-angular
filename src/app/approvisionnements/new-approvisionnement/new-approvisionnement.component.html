@@ -1,0 +1,56 @@
+<div class="max-w-3xl mx-auto bg-white shadow-md p-6 rounded-2xl mt-8">
+    <div>
+    <a routerLink="/list" class="text-blue-500 hover:underline mb-4 inline-block">← Retour à la liste des approvisionnements</a>
+    <h2 class="text-2xl font-bold mb-4 text-gray-700">Nouvel Approvisionnement</h2>
+    </div>
+
+  <form [formGroup]="approForm" (ngSubmit)="submit()" class="space-y-4">
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label>Date</label>
+        <input type="date" formControlName="date" class="input" />
+      </div>
+      <div>
+        <label>Référence</label>
+        <input type="text" formControlName="reference" class="input" />
+      </div>
+      <div>
+        <label>Fournisseur</label>
+        <input type="text" formControlName="fournisseur" class="input" />
+      </div>
+      <div>
+        <label>Statut</label>
+        <select formControlName="statut" class="input">
+          <option value="en cours">En cours</option>
+          <option value="reçu">Reçu</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <h3 class="font-semibold mb-2">Articles</h3>
+      <div formArrayName="articles">
+        <div *ngFor="let article of articles.controls; let i = index" [formGroupName]="i"
+             class="grid grid-cols-5 gap-2 mb-2">
+          <input type="text" formControlName="nom" placeholder="Nom" class="input" />
+          <input type="number" formControlName="quantite" placeholder="Qté" class="input" />
+          <input type="number" formControlName="prixUnitaire" placeholder="Prix U" class="input" />
+          <input type="number" formControlName="montant"  class="input bg-gray-100" />
+          <button type="button" (click)="removeArticle(i)" class="text-red-500 hover:text-red-700">✕</button>
+        </div>
+      </div>
+
+      <button type="button" (click)="addArticle()" class="btn bg-blue-500 text-white">
+        + Ajouter un autre article
+      </button>
+    </div>
+
+    <div class="mt-4 flex justify-between items-center">
+      <p class="text-lg font-bold">Montant Total : {{ approForm.get('montantTotal')?.value }} F</p>
+      <div class="space-x-2">
+        <button type="submit" class="btn bg-green-600 text-white">Enregistrer</button>
+        <button type="reset" class="btn bg-gray-300">Annuler</button>
+      </div>
+    </div>
+  </form>
+</div>

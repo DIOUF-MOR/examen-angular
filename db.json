@@ -1,0 +1,16 @@
+{
+  "approvisionnements": [
+    {
+      "id": 1,
+      "date": "2025-11-07",
+      "reference": "APPRO-001",
+      "fournisseur": "Fournisseur A",
+      "articles": [
+        { "nom": "Article 1", "quantite": 2, "prixUnitaire": 500, "montant": 1000 },
+        { "nom": "Article 2", "quantite": 1, "prixUnitaire": 1500, "montant": 1500 }
+      ],
+      "montantTotal": 2500,
+      "statut": "reçu"
+    }
+  ]
+}
