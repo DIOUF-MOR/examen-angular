@@ -267,6 +267,104 @@
       "statut": "En attente",
       "createdAt": "2025-11-08T02:31:13.219Z",
       "updatedAt": "2025-11-08T02:31:13.219Z"
+    },
+    {
+      "id": "8d84",
+      "reference": "APP-202511-011",
+      "date": "2025-11-09",
+      "fournisseurId": "3",
+      "fournisseur": "Tissus Premium",
+      "observations": "",
+      "articles": [
+        {
+          "articleId": "4",
+          "quantite": 11,
+          "prixUnitaire": 3000,
+          "montant": 33000
+        }
+      ],
+      "montantTotal": 33000,
+      "statut": "En attente",
+      "createdAt": "2025-11-08T02:42:33.156Z",
+      "updatedAt": "2025-11-08T02:42:33.156Z"
+    },
+    {
+      "id": "30cc",
+      "reference": "APP-202511-012",
+      "date": "2025-11-08",
+      "fournisseurId": "3",
+      "fournisseur": "Tissus Premium",
+      "observations": "ok",
+      "articles": [
+        {
+          "articleId": "2",
+          "quantite": 8,
+          "prixUnitaire": 15000,
+          "montant": 120000
+        }
+      ],
+      "montantTotal": 120000,
+      "statut": "En attente",
+      "createdAt": "2025-11-08T02:45:56.338Z",
+      "updatedAt": "2025-11-08T02:45:56.338Z"
+    },
+    {
+      "id": "49a9",
+      "reference": "APP-202511-013",
+      "date": "2025-11-08",
+      "fournisseurId": "1",
+      "fournisseur": "Textiles Dakar SARL",
+      "observations": "test",
+      "articles": [
+        {
+          "articleId": "2",
+          "quantite": 2,
+          "prixUnitaire": 15000,
+          "montant": 30000
+        },
+        {
+          "articleId": "1",
+          "quantite": 30,
+          "prixUnitaire": 5000,
+          "montant": 150000
+        },
+        {
+          "articleId": "7",
+          "quantite": 8,
+          "prixUnitaire": 6000,
+          "montant": 48000
+        }
+      ],
+      "montantTotal": 228000,
+      "statut": "En attente",
+      "createdAt": "2025-11-08T02:49:58.103Z",
+      "updatedAt": "2025-11-08T02:49:58.103Z"
+    },
+    {
+      "id": "d378",
+      "reference": "APP-202511-014",
+      "date": "2025-11-08",
+      "fournisseurId": "4",
+      "fournisseur": "Distribution Moderne",
+      "observations": "",
+      "articles": [
+        {
+          "articleId": "6",
+          "quantite": 11,
+          "prixUnitaire": 18000,
+          "montant": 198000
+        },
+        {
+          "articleId": "1",
+          "quantite": 2,
+          "prixUnitaire": 5000,
+          "montant": 10000
+        }
+      ],
+      "montantTotal": 208000,
+      "statut": "En attente",
+      "createdAt": "2025-11-08T03:13:13.601Z",
+      "updatedAt": "2025-11-08T03:13:13.601Z"
     }
   ]
 }

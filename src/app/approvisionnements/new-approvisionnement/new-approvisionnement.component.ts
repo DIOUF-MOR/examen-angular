@@ -313,7 +313,6 @@ export class NewApprovisionnementComponent implements OnInit {
       statut: 'En attente' as const
     };
 
-    console.log('📤 Envoi vers JSON Server:', approvisionnement);
 
     // Créer ou mettre à jour
     if (this.isEditMode && this.approvisionnementId) {
@@ -323,7 +322,6 @@ export class NewApprovisionnementComponent implements OnInit {
         .subscribe({
           next: (response) => {
             console.log('✅ Approvisionnement mis à jour:', response);
-            alert('Approvisionnement mis à jour avec succès !');
             this.retourListe();
           },
           error: (error) => {
