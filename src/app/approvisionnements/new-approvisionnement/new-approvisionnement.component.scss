@@ -1,0 +1,151 @@
+/* Styles personnalisés pour le formulaire */
+
+/* Améliorer l'apparence des selects */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Animation pour les inputs au focus */
+input:focus,
+select:focus,
+textarea:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Styles pour les inputs invalides */
+input.border-red-500,
+select.border-red-500,
+textarea.border-red-500 {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+/* Animation pour les lignes de table */
+tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+/* Style pour les inputs en lecture seule */
+input[readonly] {
+  cursor: not-allowed;
+  background-color: #f9fafb;
+}
+
+/* Style amélioré pour les boutons désactivés */
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+button:disabled:hover {
+  transform: none;
+}
+
+/* Animation pour l'ajout d'articles */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+tbody tr {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Amélioration visuelle des labels */
+label {
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Style pour le total */
+tfoot td {
+  font-size: 1.125rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.125rem;
+  }
+
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Effet hover sur les boutons */
+button {
+  transition: all 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Style pour les messages d'erreur */
+.text-red-500 {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+/* Style pour le bouton de suppression */
+button[type="button"] svg {
+  transition: transform 0.2s ease;
+}
+
+button[type="button"]:hover svg {
+  transform: scale(1.1);
+}
+
+/* Amélioration du tableau vide */
+td[colspan] {
+  text-align: center;
+  font-style: italic;
+}
+
+/* Style pour les nombres */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  opacity: 1;
+}
+
+/* Focus visible pour l'accessibilité */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Animation de chargement (optionnelle) */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

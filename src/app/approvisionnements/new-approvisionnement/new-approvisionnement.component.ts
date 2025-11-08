@@ -27,7 +27,7 @@ interface ArticleAjoute {
 @Component({
   selector: 'app-new-approvisionnement',
   standalone: true,
-  imports: [ReactiveFormsModule, ReactiveFormsModule, CommonModule, ReactiveFormsModule, FormsModule, RouterLink],
+  imports: [ReactiveFormsModule, CommonModule, FormsModule, RouterLink],
   templateUrl: './new-approvisionnement.component.html',
   styleUrl: './new-approvisionnement.component.scss'
 })

@@ -1,0 +1,53 @@
+/* Styles personnalisés supplémentaires si nécessaire */
+
+/* Animation pour les boutons */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Styles pour la table */
+table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* Scroll personnalisé */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Animation pour les lignes de la table */
+tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+/* Effet de focus sur les inputs */
+input:focus,
+select:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Badge styles améliorés */
+.badge {
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}

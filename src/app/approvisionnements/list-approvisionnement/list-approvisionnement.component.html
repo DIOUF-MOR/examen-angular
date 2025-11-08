@@ -4,7 +4,10 @@
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-3xl font-semibold text-gray-800">Gestion des Approvisionnements</h1>
       <button routerLink="/new" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2 transition-colors">
-        + Nouvel approvisionnement
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Nouvel approvisionnement
       </button>
     </div>
 
@@ -17,24 +20,32 @@
         <div class="relative">
           <input 
             type="text" 
+            [(ngModel)]="searchTerm"
             placeholder="Recherche..." 
             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
+          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
         </div>
 
         <!-- Filtre Fournisseurs -->
-        <select  class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <select [(ngModel)]="selectedFournisseur" class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           <option value="">Tous les fournisseurs</option>
+          <option *ngFor="let f of fournisseurs" [value]="f">{{f}}</option>
         </select>
 
         <!-- Filtre Articles -->
-        <select  class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <select [(ngModel)]="selectedArticle" class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           <option value="">Tous les articles</option>
+          <option *ngFor="let a of articles" [value]="a">{{a}}</option>
         </select>
 
         <!-- Bouton Filtrer -->
         <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition-colors flex items-center justify-center gap-2">
-          
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+          </svg>
           Filtrer
         </button>
       </div>
@@ -45,6 +56,7 @@
           <label class="text-sm text-gray-600">Du</label>
           <input 
             type="date" 
+            [(ngModel)]="dateDebut"
             class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -52,10 +64,11 @@
           <label class="text-sm text-gray-600">Au</label>
           <input 
             type="date" 
+            [(ngModel)]="dateFin"
             class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
-        <select  class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        <select [(ngModel)]="dateFilter" class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
           <option value="">Date (récent + ancien)</option>
           <option value="recent">Plus récent</option>
           <option value="ancien">Plus ancien</option>
@@ -85,7 +98,7 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr *ngFor="let appro of service.approvisionnements()" class="hover:bg-gray-50 transition-colors">
+            <tr *ngFor="let appro of approvisionnements" class="hover:bg-gray-50 transition-colors">
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                 {{appro.reference}}
               </td>
@@ -97,16 +110,19 @@
               </td>
               <td class="px-6 py-4">
                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800">
-                  {{appro.articles.length}} articles
+                  {{appro.nbArticles}} articles
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {{appro.montantTotal | number:'1.0-0'}} FCFA
+                {{appro.montant | number:'1.0-0'}} FCFA
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span 
                   class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
-                  
+                  [ngClass]="{
+                    'bg-green-100 text-green-800': appro.statut === 'Reçu',
+                    'bg-yellow-100 text-yellow-800': appro.statut === 'En attente'
+                  }"
                 >
                   {{appro.statut}}
                 </span>
@@ -171,33 +187,4 @@
       </div>
     </div>
   </div>
-</div>
-<div class="max-w-4xl mx-auto mt-10">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold mb-4">Liste des Approvisionnements</h2>
-    <a routerLink="/new" class="btn bg-blue-500 text-white mb-4 inline-block">+ Nouvel Approvisionnement</a>
-    </div>
-
-  <table class="w-full border border-gray-300 text-left">
-    <thead class="bg-gray-100">
-      <tr>
-          <th class="p-2 border">Référence</th>
-        <th class="p-2 border">Date</th>
-        <th class="p-2 border">Fournisseur</th>
-        <th class="p-2 border">articles</th>
-        <th class="p-2 border">Montant Total</th>
-        <th class="p-2 border">Statut</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let a of service.approvisionnements()">
-          <td class="p-2 border">{{ a.reference }}</td>
-        <td class="p-2 border">{{ a.date }}</td>
-        <td class="p-2 border">{{ a.fournisseur }}</td>
-        <td class="p-2 border">{{ a.articles.length }} </td>
-        <td class="p-2 border">{{ a.montantTotal }} F</td>
-        <td class="p-2 border">{{ a.statut }}</td>
-      </tr>
-    </tbody>
-  </table>
 </div>

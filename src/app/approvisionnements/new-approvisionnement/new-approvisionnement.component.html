@@ -171,7 +171,25 @@
         </div>
       </div>
 
-      <!-- Section Articles ajoutés -->
+     
+
+      <!-- Boutons d'action -->
+      <div class="flex justify-end gap-4">
+        <button 
+          type="button"
+          (click)="annuler()"
+          class="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+          Annuler
+        </button>
+        <button 
+          type="submit"
+          [disabled]="approForm.invalid "
+          class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          Enregistrer l'approvisionnement
+        </button>
+      </div>
+    </form>
+     <!-- Section Articles ajoutés -->
       <div class="bg-white rounded-lg shadow-sm p-6">
         <h2 class="text-lg font-semibold text-gray-800 mb-4">Articles ajoutés</h2>
         
@@ -232,22 +250,5 @@
           </table>
         </div>
       </div>
-
-      <!-- Boutons d'action -->
-      <div class="flex justify-end gap-4">
-        <button 
-          type="button"
-          (click)="annuler()"
-          class="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-          Annuler
-        </button>
-        <button 
-          type="submit"
-          [disabled]="approForm.invalid || articlesAjoutes.length === 0"
-          class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          Enregistrer l'approvisionnement
-        </button>
-      </div>
-    </form>
   </div>
 </div>
