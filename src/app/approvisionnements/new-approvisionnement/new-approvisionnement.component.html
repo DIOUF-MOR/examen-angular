@@ -14,241 +14,242 @@
     </div>
 
     <!-- Formulaire -->
-    <form [formGroup]="approForm" (ngSubmit)="onSubmit()" class="space-y-6">
+    <form [formGroup]="approForm" (ngSubmit)="onSubmit()" class="grid grid-cols-1 gap-6">
+      
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-6">Informations générales</h2>
+            
+            <div class="space-y-4">
+              <!-- Date d'approvisionnement -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Date d'approvisionnement
+                </label>
+                <input 
+                  type="date" 
+                  formControlName="date"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  [class.border-red-500]="approForm.get('date')?.invalid && approForm.get('date')?.touched"
+                />
+                <p *ngIf="approForm.get('date')?.invalid && approForm.get('date')?.touched" 
+                   class="text-red-500 text-xs mt-1">
+                  La date est requise
+                </p>
+              </div>
+    
+              <!-- Fournisseur -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Fournisseur
+                </label>
+                <select 
+                  formControlName="fournisseur"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                  [class.border-red-500]="approForm.get('fournisseur')?.invalid && approForm.get('fournisseur')?.touched"
+                >
+                  <option value="">Sélectionner un fournisseur</option>
+                  <option *ngFor="let f of fournisseurs" [value]="f.id">{{f.nom}}</option>
+                </select>
+                <p *ngIf="approForm.get('fournisseur')?.invalid && approForm.get('fournisseur')?.touched" 
+                   class="text-red-500 text-xs mt-1">
+                  Le fournisseur est requis
+                </p>
+              </div>
+    
+              <!-- Référence -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Référence
+                </label>
+                <input 
+                  type="text" 
+                  formControlName="reference"
+                  placeholder="Référence de l'approvisionnement"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  [class.border-red-500]="approForm.get('reference')?.invalid && approForm.get('reference')?.touched"
+                />
+                <p *ngIf="approForm.get('reference')?.invalid && approForm.get('reference')?.touched" 
+                   class="text-red-500 text-xs mt-1">
+                  La référence est requise
+                </p>
+              </div>
+    
+              <!-- Observations -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Observations
+                </label>
+                <textarea 
+                  formControlName="observations"
+                  rows="4"
+                  placeholder="Observations ou commentaires sur cet approvisionnement"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+    
+          <!-- Section Détails de l'approvisionnement -->
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-800 mb-6">Détails de l'approvisionnement</h2>
+            
+            <div class="space-y-4">
+              <!-- Article -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Article
+                </label>
+                <select 
+                  [(ngModel)]="currentArticle.articleId"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="onArticleChange()"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                >
+                  <option value="">Sélectionner un article</option>
+                  <option *ngFor="let a of articles" [value]="a.id">{{a.nom}}</option>
+                </select>
+              </div>
+    
+              <!-- Quantité et Prix unitaire -->
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Quantité
+                  </label>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="currentArticle.quantite"
+                    [ngModelOptions]="{standalone: true}"
+                    (ngModelChange)="calculerMontant()"
+                    min="0"
+                    placeholder="0"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Prix unitaire (FCFA)
+                  </label>
+                  <input 
+                    type="number" 
+                    [(ngModel)]="currentArticle.prixUnitaire"
+                    [ngModelOptions]="{standalone: true}"
+                    (ngModelChange)="calculerMontant()"
+                    min="0"
+                    placeholder="0"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+    
+              <!-- Montant total -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Montant total (FCFA)
+                </label>
+                <input 
+                  type="text" 
+                  [value]="currentArticle.montant | number:'1.0-0'"
+                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
+                />
+              </div>
+              
+            </div>
+          </div>
+      </div>
         <!-- Section Informations générales -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
-          <h2 class="text-lg font-semibold text-gray-800 mb-6">Informations générales</h2>
-          
-          <div class="space-y-4">
-            <!-- Date d'approvisionnement -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Date d'approvisionnement
-              </label>
-              <input 
-                type="date" 
-                formControlName="date"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                [class.border-red-500]="approForm.get('date')?.invalid && approForm.get('date')?.touched"
-              />
-              <p *ngIf="approForm.get('date')?.invalid && approForm.get('date')?.touched" 
-                 class="text-red-500 text-xs mt-1">
-                La date est requise
-              </p>
-            </div>
-
-            <!-- Fournisseur -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Fournisseur
-              </label>
-              <select 
-                formControlName="fournisseur"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-                [class.border-red-500]="approForm.get('fournisseur')?.invalid && approForm.get('fournisseur')?.touched"
-              >
-                <option value="">Sélectionner un fournisseur</option>
-                <option *ngFor="let f of fournisseurs" [value]="f.id">{{f.nom}}</option>
-              </select>
-              <p *ngIf="approForm.get('fournisseur')?.invalid && approForm.get('fournisseur')?.touched" 
-                 class="text-red-500 text-xs mt-1">
-                Le fournisseur est requis
-              </p>
-            </div>
-
-            <!-- Référence -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Référence
-              </label>
-              <input 
-                type="text" 
-                formControlName="reference"
-                placeholder="Référence de l'approvisionnement"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                [class.border-red-500]="approForm.get('reference')?.invalid && approForm.get('reference')?.touched"
-              />
-              <p *ngIf="approForm.get('reference')?.invalid && approForm.get('reference')?.touched" 
-                 class="text-red-500 text-xs mt-1">
-                La référence est requise
-              </p>
-            </div>
-
-            <!-- Observations -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Observations
-              </label>
-              <textarea 
-                formControlName="observations"
-                rows="4"
-                placeholder="Observations ou commentaires sur cet approvisionnement"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-              ></textarea>
-            </div>
-          </div>
-        </div>
-
-        <!-- Section Détails de l'approvisionnement -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
-          <h2 class="text-lg font-semibold text-gray-800 mb-6">Détails de l'approvisionnement</h2>
-          
-          <div class="space-y-4">
-            <!-- Article -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Article
-              </label>
-              <select 
-                [(ngModel)]="currentArticle.articleId"
-                [ngModelOptions]="{standalone: true}"
-                (ngModelChange)="onArticleChange()"
-                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-              >
-                <option value="">Sélectionner un article</option>
-                <option *ngFor="let a of articles" [value]="a.id">{{a.nom}}</option>
-              </select>
-            </div>
-
-            <!-- Quantité et Prix unitaire -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Quantité
-                </label>
-                <input 
-                  type="number" 
-                  [(ngModel)]="currentArticle.quantite"
-                  [ngModelOptions]="{standalone: true}"
-                  (ngModelChange)="calculerMontant()"
-                  min="0"
-                  placeholder="0"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  Prix unitaire (FCFA)
-                </label>
-                <input 
-                  type="number" 
-                  [(ngModel)]="currentArticle.prixUnitaire"
-                  [ngModelOptions]="{standalone: true}"
-                  (ngModelChange)="calculerMontant()"
-                  min="0"
-                  placeholder="0"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            <!-- Montant total -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Montant total (FCFA)
-              </label>
-              <input 
-                type="text" 
-                [value]="currentArticle.montant | number:'1.0-0'"
-                readonly
-                class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-600"
-              />
-            </div>
-
-            <!-- Bouton ajouter article -->
-            <button 
-              type="button"
-              (click)="ajouterArticle()"
-              [disabled]="!currentArticle.articleId || !currentArticle.quantite || !currentArticle.prixUnitaire"
-              class="w-full flex items-center justify-center gap-2 px-4 py-2 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-              </svg>
-              Ajouter un autre article
-            </button>
-          </div>
-        </div>
-      </div>
-
-     
-
-      <!-- Boutons d'action -->
-      <div class="flex justify-end gap-4">
-        <button 
-          type="button"
-          (click)="annuler()"
-          class="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-          Annuler
-        </button>
-        <button 
-          type="submit"
-          [disabled]="approForm.invalid "
-          class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-          Enregistrer l'approvisionnement
-        </button>
-      </div>
-    </form>
-     <!-- Section Articles ajoutés -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <h2 class="text-lg font-semibold text-gray-800 mb-4">Articles ajoutés</h2>
-        
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead class="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Article</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix unitaire</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-              <tr *ngFor="let item of articlesAjoutes; let i = index" class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{getArticleNom(item.articleId)}}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{item.quantite}}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {{item.prixUnitaire | number:'1.0-0'}} FCFA
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {{item.montant | number:'1.0-0'}} FCFA
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
+        <!-- Boutons d'action -->
+        <div class="flex w-full justify-between p-4">
+          <button 
+                type="button"
+                (click)="ajouterArticle()" class="flex items-center justify-center gap-2 px-4 py-2  border border-blue-600 rounded-md bg-blue-50 transition-colors  ">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Ajouter un autre article
+              </button>
+              <div class="flex j gap-4">
+  
                   <button 
                     type="button"
-                    (click)="supprimerArticle(i)"
-                    class="p-2 text-red-500 hover:bg-red-50 rounded transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
+                    (click)="annuler()"
+                    class="px-6 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
+                    Annuler
                   </button>
-                </td>
-              </tr>
-              
-              <!-- Message si aucun article -->
-              <tr *ngIf="articlesAjoutes.length === 0">
-                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
-                  Aucun article ajouté
-                </td>
-              </tr>
-            </tbody>
-            <tfoot class="bg-gray-50 border-t-2 border-gray-300">
-              <tr>
-                <td colspan="3" class="px-6 py-4 text-right text-sm font-semibold text-gray-900">
-                  Total:
-                </td>
-                <td colspan="2" class="px-6 py-4 text-sm font-bold text-gray-900">
-                  {{montantTotal | number:'1.0-0'}} FCFA
-                </td>
-              </tr>
-            </tfoot>
-          </table>
+                  <button 
+                    type="submit"
+                    class="px-6 py-2 border border-blue-600 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Enregistrer l'approvisionnement
+                  </button>
+              </div>
         </div>
-      </div>
+
+     
+        <!-- Section Articles ajoutés -->
+         <div class="bg-white rounded-lg shadow-sm p-6">
+           <h2 class="text-lg font-semibold text-gray-800 mb-4">Articles ajoutés</h2>
+           
+           <div class="overflow-x-auto">
+             <table class="w-full">
+               <thead class="bg-gray-50 border-b border-gray-200">
+                 <tr>
+                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Article</th>
+                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantité</th>
+                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix unitaire</th>
+                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Montant</th>
+                   <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                 </tr>
+               </thead>
+               <tbody class="bg-white divide-y divide-gray-200">
+                 <tr *ngFor="let item of articlesAjoutes; let i = index" class="hover:bg-gray-50">
+                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                     {{getArticleNom(item.articleId)}}
+                   </td>
+                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                     {{item.quantite}}
+                   </td>
+                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                     {{item.prixUnitaire | number:'1.0-0'}} FCFA
+                   </td>
+                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                     {{item.montant | number:'1.0-0'}} FCFA
+                   </td>
+                   <td class="px-6 py-4 whitespace-nowrap text-sm">
+                     <button 
+                       type="button"
+                       (click)="supprimerArticle(i)"
+                       class="p-2 text-red-500 hover:bg-red-50 rounded transition-colors">
+                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                       </svg>
+                     </button>
+                   </td>
+                 </tr>
+                 
+                 <!-- Message si aucun article -->
+                 <tr *ngIf="articlesAjoutes.length === 0">
+                   <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                     Aucun article ajouté
+                   </td>
+                 </tr>
+               </tbody>
+               <tfoot class="bg-gray-50 border-t-2 border-gray-300">
+                 <tr>
+                   <td colspan="3" class="px-6 py-4 text-right text-sm font-semibold text-gray-900">
+                     Total:
+                   </td>
+                   <td colspan="2" class="px-6 py-4 text-sm font-bold text-gray-900">
+                     {{montantTotal | number:'1.0-0'}} FCFA
+                   </td>
+                 </tr>
+               </tfoot>
+             </table>
+           </div>
+         </div>
+
+    </form>
   </div>
 </div>

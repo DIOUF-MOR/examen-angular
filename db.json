@@ -1,16 +1,272 @@
 {
+  "fournisseurs": [
+    {
+      "id": "1",
+      "nom": "Textiles Dakar SARL",
+      "contact": "77 123 45 67",
+      "email": "contact@textiles-dakar.sn",
+      "adresse": "Zone Industrielle, Dakar"
+    },
+    {
+      "id": "2",
+      "nom": "Mercerie Centrale",
+      "contact": "76 234 56 78",
+      "email": "info@mercerie-centrale.sn",
+      "adresse": "Avenue Lamine Gueye, Dakar"
+    },
+    {
+      "id": "3",
+      "nom": "Tissus Premium",
+      "contact": "78 345 67 89",
+      "email": "vente@tissus-premium.sn",
+      "adresse": "Marché HLM, Dakar"
+    },
+    {
+      "id": "4",
+      "nom": "Distribution Moderne",
+      "contact": "70 456 78 90",
+      "email": "commercial@distrib-moderne.sn",
+      "adresse": "Plateau, Dakar"
+    }
+  ],
+  "articles": [
+    {
+      "id": "1",
+      "nom": "Coton blanc 100%",
+      "description": "Tissu en coton naturel de haute qualité",
+      "prixReference": 5000,
+      "unite": "mètre",
+      "categorie": "Tissus",
+      "stock": 250
+    },
+    {
+      "id": "2",
+      "nom": "Soie naturelle",
+      "description": "Soie pure importée",
+      "prixReference": 15000,
+      "unite": "mètre",
+      "categorie": "Tissus",
+      "stock": 80
+    },
+    {
+      "id": "3",
+      "nom": "Lin premium",
+      "description": "Lin européen de première qualité",
+      "prixReference": 8000,
+      "unite": "mètre",
+      "categorie": "Tissus",
+      "stock": 150
+    },
+    {
+      "id": "4",
+      "nom": "Polyester résistant",
+      "description": "Polyester haute résistance",
+      "prixReference": 3000,
+      "unite": "mètre",
+      "categorie": "Tissus",
+      "stock": 400
+    },
+    {
+      "id": "5",
+      "nom": "Laine mérinos",
+      "description": "Laine mérinos australienne",
+      "prixReference": 12000,
+      "unite": "mètre",
+      "categorie": "Tissus",
+      "stock": 100
+    },
+    {
+      "id": "6",
+      "nom": "Velours de luxe",
+      "description": "Velours italien haut de gamme",
+      "prixReference": 18000,
+      "unite": "mètre",
+      "categorie": "Tissus",
+      "stock": 60
+    },
+    {
+      "id": "7",
+      "nom": "Denim brut",
+      "description": "Denim américain brut",
+      "prixReference": 6000,
+      "unite": "mètre",
+      "categorie": "Tissus",
+      "stock": 300
+    },
+    {
+      "id": "8",
+      "nom": "Satin brillant",
+      "description": "Satin avec finition brillante",
+      "prixReference": 10000,
+      "unite": "mètre",
+      "categorie": "Tissus",
+      "stock": 120
+    }
+  ],
   "approvisionnements": [
     {
-      "id": 1,
-      "date": "2025-11-07",
-      "reference": "APPRO-001",
-      "fournisseur": "Fournisseur A",
+      "id": "1",
+      "reference": "APP-2023-001",
+      "date": "2023-04-15",
+      "fournisseurId": "1",
+      "fournisseur": "Textiles Dakar SARL",
+      "observations": "Livraison urgente confirmée",
       "articles": [
-        { "nom": "Article 1", "quantite": 2, "prixUnitaire": 500, "montant": 1000 },
-        { "nom": "Article 2", "quantite": 1, "prixUnitaire": 1500, "montant": 1500 }
+        {
+          "articleId": "1",
+          "quantite": 100,
+          "prixUnitaire": 5000,
+          "montant": 500000
+        },
+        {
+          "articleId": "2",
+          "quantite": 20,
+          "prixUnitaire": 15000,
+          "montant": 300000
+        }
       ],
-      "montantTotal": 2500,
-      "statut": "reçu"
+      "montantTotal": 800000,
+      "statut": "Reçu",
+      "createdAt": "2023-04-15T10:30:00Z",
+      "updatedAt": "2023-04-15T10:30:00Z"
+    },
+    {
+      "id": "2",
+      "reference": "APP-2023-002",
+      "date": "2023-04-10",
+      "fournisseurId": "2",
+      "fournisseur": "Mercerie Centrale",
+      "observations": "RAS",
+      "articles": [
+        {
+          "articleId": "3",
+          "quantite": 50,
+          "prixUnitaire": 8000,
+          "montant": 400000
+        }
+      ],
+      "montantTotal": 400000,
+      "statut": "Reçu",
+      "createdAt": "2023-04-10T14:20:00Z",
+      "updatedAt": "2023-04-10T14:20:00Z"
+    },
+    {
+      "id": "3",
+      "reference": "APP-2023-003",
+      "date": "2023-04-05",
+      "fournisseurId": "3",
+      "fournisseur": "Tissus Premium",
+      "observations": "Attente confirmation livraison",
+      "articles": [
+        {
+          "articleId": "4",
+          "quantite": 150,
+          "prixUnitaire": 3000,
+          "montant": 450000
+        }
+      ],
+      "montantTotal": 450000,
+      "statut": "En attente",
+      "createdAt": "2023-04-05T09:15:00Z",
+      "updatedAt": "2023-04-05T09:15:00Z"
+    },
+    {
+      "id": "4",
+      "reference": "APP-2023-004",
+      "date": "2023-04-01",
+      "fournisseurId": "1",
+      "fournisseur": "Textiles Dakar SARL",
+      "observations": "",
+      "articles": [
+        {
+          "articleId": "5",
+          "quantite": 40,
+          "prixUnitaire": 12000,
+          "montant": 480000
+        },
+        {
+          "articleId": "6",
+          "quantite": 15,
+          "prixUnitaire": 18000,
+          "montant": 270000
+        }
+      ],
+      "montantTotal": 750000,
+      "statut": "Reçu",
+      "createdAt": "2023-04-01T11:45:00Z",
+      "updatedAt": "2023-04-01T11:45:00Z"
+    },
+    {
+      "id": "5",
+      "reference": "APP-2023-005",
+      "date": "2023-03-26",
+      "fournisseurId": "2",
+      "fournisseur": "Mercerie Centrale",
+      "observations": "Commande complète",
+      "articles": [
+        {
+          "articleId": "7",
+          "quantite": 80,
+          "prixUnitaire": 6000,
+          "montant": 480000
+        },
+        {
+          "articleId": "8",
+          "quantite": 30,
+          "prixUnitaire": 10000,
+          "montant": 300000
+        }
+      ],
+      "montantTotal": 780000,
+      "statut": "Reçu",
+      "createdAt": "2023-03-26T16:00:00Z",
+      "updatedAt": "2023-03-26T16:00:00Z"
+    },
+    {
+      "id": "bb49",
+      "reference": "APP-202511-009",
+      "date": "2025-11-08",
+      "fournisseurId": "1",
+      "fournisseur": "Textiles Dakar SARL",
+      "observations": "test",
+      "articles": [
+        {
+          "articleId": "2",
+          "quantite": 3,
+          "prixUnitaire": 15000,
+          "montant": 45000
+        },
+        {
+          "articleId": "3",
+          "quantite": 1,
+          "prixUnitaire": 8000,
+          "montant": 8000
+        }
+      ],
+      "montantTotal": 53000,
+      "statut": "En attente",
+      "createdAt": "2025-11-08T02:28:33.655Z",
+      "updatedAt": "2025-11-08T02:28:33.655Z"
+    },
+    {
+      "id": "639f",
+      "reference": "APP-202511-010",
+      "date": "2025-11-08",
+      "fournisseurId": "2",
+      "fournisseur": "Mercerie Centrale",
+      "observations": "",
+      "articles": [
+        {
+          "articleId": "2",
+          "quantite": 5,
+          "prixUnitaire": 15000,
+          "montant": 75000
+        }
+      ],
+      "montantTotal": 75000,
+      "statut": "En attente",
+      "createdAt": "2025-11-08T02:31:13.219Z",
+      "updatedAt": "2025-11-08T02:31:13.219Z"
     }
   ]
 }

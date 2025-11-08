@@ -1,36 +1,57 @@
-import { Injectable, signal } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { delay, Observable, of } from 'rxjs';
-import { Approvisionnement, Article, Fournisseur } from './shared/models';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+export interface Article {
+  id: string;
+  nom: string;
+  description?: string;
+  prixReference?: number;
+  unite?: string;
+  categorie?: string;
+  stock?: number;
+}
 
+export interface Fournisseur {
+  id: string;
+  nom: string;
+  contact?: string;
+  email?: string;
+  adresse?: string;
+}
 
-@Injectable({ providedIn: 'root' })
+export interface ArticleApprovisionnement {
+  articleId: string;
+  quantite: number;
+  prixUnitaire: number;
+  montant: number;
+}
+
+export interface Approvisionnement {
+  id?: string;
+  reference: string;
+  date: string;
+  fournisseurId: string;
+  fournisseur?: string;
+  observations?: string;
+  articles: ArticleApprovisionnement[];
+  montantTotal: number;
+  statut: 'En attente' | 'Reçu' | 'Annulé';
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
 export class ApprovisionnementService {
+  // URL de JSON Server (par défaut sur le port 3000)
+  private apiUrl = 'http://localhost:3000';
   
- private apiUrl = '/api'; // URL de base de votre API
-  private headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-
-  // Données mockées pour le développement
-  private mockFournisseurs: Fournisseur[] = [
-    { id: '1', nom: 'Textiles Dakar SARL', contact: '77 123 45 67', email: 'contact@textiles-dakar.sn' },
-    { id: '2', nom: 'Mercerie Centrale', contact: '76 234 56 78', email: 'info@mercerie-centrale.sn' },
-    { id: '3', nom: 'Tissus Premium', contact: '78 345 67 89', email: 'vente@tissus-premium.sn' },
-    { id: '4', nom: 'Distribution Moderne', contact: '70 456 78 90', email: 'commercial@distrib-moderne.sn' }
-  ];
-
-  private mockArticles: Article[] = [
-    { id: '1', nom: 'Coton blanc 100%', prixReference: 5000, unite: 'mètre', categorie: 'Tissus' },
-    { id: '2', nom: 'Soie naturelle', prixReference: 15000, unite: 'mètre', categorie: 'Tissus' },
-    { id: '3', nom: 'Lin premium', prixReference: 8000, unite: 'mètre', categorie: 'Tissus' },
-    { id: '4', nom: 'Polyester résistant', prixReference: 3000, unite: 'mètre', categorie: 'Tissus' },
-    { id: '5', nom: 'Laine mérinos', prixReference: 12000, unite: 'mètre', categorie: 'Tissus' },
-    { id: '6', nom: 'Velours de luxe', prixReference: 18000, unite: 'mètre', categorie: 'Tissus' },
-    { id: '7', nom: 'Denim brut', prixReference: 6000, unite: 'mètre', categorie: 'Tissus' },
-    { id: '8', nom: 'Satin brillant', prixReference: 10000, unite: 'mètre', categorie: 'Tissus' }
-  ];
-
-  private mockApprovisionnements: Approvisionnement[] = [];
+  private headers = new HttpHeaders({ 
+    'Content-Type': 'application/json' 
+  });
 
   constructor(private http: HttpClient) {}
 
@@ -40,23 +61,43 @@ export class ApprovisionnementService {
    * Récupère tous les fournisseurs
    */
   getFournisseurs(): Observable<Fournisseur[]> {
-    // Version mockée (développement)
-    return of(this.mockFournisseurs).pipe(delay(300));
-
-    // Version API (production)
-    // return this.http.get<Fournisseur[]>(`${this.apiUrl}/fournisseurs`);
+    return this.http.get<Fournisseur[]>(`${this.apiUrl}/fournisseurs`);
   }
 
   /**
    * Récupère un fournisseur par ID
    */
-  getFournisseurById(id: string): Observable<Fournisseur | undefined> {
-    // Version mockée
-    const fournisseur = this.mockFournisseurs.find(f => f.id === id);
-    return of(fournisseur).pipe(delay(200));
+  getFournisseurById(id: string): Observable<Fournisseur> {
+    return this.http.get<Fournisseur>(`${this.apiUrl}/fournisseurs/${id}`);
+  }
 
-    // Version API
-    // return this.http.get<Fournisseur>(`${this.apiUrl}/fournisseurs/${id}`);
+  /**
+   * Crée un nouveau fournisseur
+   */
+  createFournisseur(fournisseur: Omit<Fournisseur, 'id'>): Observable<Fournisseur> {
+    return this.http.post<Fournisseur>(
+      `${this.apiUrl}/fournisseurs`,
+      fournisseur,
+      { headers: this.headers }
+    );
+  }
+
+  /**
+   * Met à jour un fournisseur
+   */
+  updateFournisseur(id: string, fournisseur: Partial<Fournisseur>): Observable<Fournisseur> {
+    return this.http.patch<Fournisseur>(
+      `${this.apiUrl}/fournisseurs/${id}`,
+      fournisseur,
+      { headers: this.headers }
+    );
+  }
+
+  /**
+   * Supprime un fournisseur
+   */
+  deleteFournisseur(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/fournisseurs/${id}`);
   }
 
   // ==================== ARTICLES ====================
@@ -65,120 +106,165 @@ export class ApprovisionnementService {
    * Récupère tous les articles
    */
   getArticles(): Observable<Article[]> {
-    // Version mockée
-    return of(this.mockArticles).pipe(delay(300));
-
-    // Version API
-    // return this.http.get<Article[]>(`${this.apiUrl}/articles`);
+    return this.http.get<Article[]>(`${this.apiUrl}/articles`);
   }
 
   /**
    * Récupère un article par ID
    */
-  getArticleById(id: string): Observable<Article | undefined> {
-    // Version mockée
-    const article = this.mockArticles.find(a => a.id === id);
-    return of(article).pipe(delay(200));
-
-    // Version API
-    // return this.http.get<Article>(`${this.apiUrl}/articles/${id}`);
+  getArticleById(id: string): Observable<Article> {
+    return this.http.get<Article>(`${this.apiUrl}/articles/${id}`);
   }
 
   /**
    * Recherche des articles par nom
    */
   searchArticles(searchTerm: string): Observable<Article[]> {
-    // Version mockée
-    const results = this.mockArticles.filter(a => 
-      a.nom.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    return of(results).pipe(delay(300));
+    return this.http.get<Article[]>(`${this.apiUrl}/articles?nom_like=${searchTerm}`);
+  }
 
-    // Version API
-    // return this.http.get<Article[]>(`${this.apiUrl}/articles/search?q=${searchTerm}`);
+  /**
+   * Crée un nouvel article
+   */
+  createArticle(article: Omit<Article, 'id'>): Observable<Article> {
+    return this.http.post<Article>(
+      `${this.apiUrl}/articles`,
+      article,
+      { headers: this.headers }
+    );
+  }
+
+  /**
+   * Met à jour un article
+   */
+  updateArticle(id: string, article: Partial<Article>): Observable<Article> {
+    return this.http.patch<Article>(
+      `${this.apiUrl}/articles/${id}`,
+      article,
+      { headers: this.headers }
+    );
+  }
+
+  /**
+   * Supprime un article
+   */
+  deleteArticle(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/articles/${id}`);
   }
 
   // ==================== APPROVISIONNEMENTS ====================
 
   /**
    * Récupère tous les approvisionnements
+   * Supporte les paramètres de filtrage et de tri
    */
-  getApprovisionnements(): Observable<Approvisionnement[]> {
-    // Version mockée
-    return of(this.mockApprovisionnements).pipe(delay(500));
+  getApprovisionnements(params?: {
+    fournisseurId?: string;
+    statut?: string;
+    dateDebut?: string;
+    dateFin?: string;
+    _sort?: string;
+    _order?: 'asc' | 'desc';
+    _page?: number;
+    _limit?: number;
+  }): Observable<Approvisionnement[]> {
+    let httpParams = new HttpParams();
 
-    // Version API
-    // return this.http.get<Approvisionnement[]>(`${this.apiUrl}/approvisionnements`);
+    if (params) {
+      Object.keys(params).forEach(key => {
+        const value = params[key as keyof typeof params];
+        if (value !== undefined && value !== null && value !== '') {
+          httpParams = httpParams.set(key, value.toString());
+        }
+      });
+    }
+
+    return this.http.get<Approvisionnement[]>(
+      `${this.apiUrl}/approvisionnements`,
+      { params: httpParams }
+    );
   }
 
   /**
-   * Récupère un approvisionnement par ID ou référence
+   * Récupère un approvisionnement par ID
    */
-  getApprovisionnementById(id: string): Observable<Approvisionnement | undefined> {
-    // Version mockée
-    const appro = this.mockApprovisionnements.find(a => a.id === id || a.reference === id);
-    return of(appro).pipe(delay(300));
+  getApprovisionnementById(id: string): Observable<Approvisionnement> {
+    return this.http.get<Approvisionnement>(`${this.apiUrl}/approvisionnements/${id}`);
+  }
 
-    // Version API
-    // return this.http.get<Approvisionnement>(`${this.apiUrl}/approvisionnements/${id}`);
+  /**
+   * Récupère un approvisionnement par référence
+   */
+  getApprovisionnementByReference(reference: string): Observable<Approvisionnement[]> {
+    return this.http.get<Approvisionnement[]>(
+      `${this.apiUrl}/approvisionnements?reference=${reference}`
+    );
   }
 
   /**
    * Crée un nouvel approvisionnement
    */
-  createApprovisionnement(appro: Omit<Approvisionnement, 'id' | 'createdAt' | 'updatedAt'>): Observable<Approvisionnement> {
-    // Version mockée
-    const newAppro: Approvisionnement = {
-      ...appro,
-      id: `APP-${Date.now()}`,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.mockApprovisionnements.push(newAppro);
-    return of(newAppro).pipe(delay(500));
+  createApprovisionnement(appro: Omit<Approvisionnement, 'id'>): Observable<Approvisionnement> {
+    // Récupérer le nom du fournisseur
+    return this.getFournisseurById(appro.fournisseurId).pipe(
+      map(fournisseur => ({
+        ...appro,
+        fournisseur: fournisseur.nom,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      })),
+      map(approWithFournisseur => 
+        this.http.post<Approvisionnement>(
+          `${this.apiUrl}/approvisionnements`,
+          approWithFournisseur,
+          { headers: this.headers }
+        )
+      ),
+      // Flatten the nested Observable
+      map(obs => obs),
+      // Execute the inner observable
+      switchMap(obs => obs)
+    );
+  }
 
-    // Version API
-    // return this.http.post<Approvisionnement>(
-    //   `${this.apiUrl}/approvisionnements`, 
-    //   appro, 
-    //   { headers: this.headers }
-    // );
+  /**
+   * Version simplifiée de createApprovisionnement
+   */
+  createApprovisionnementSimple(appro: any): Observable<Approvisionnement> {
+    const approWithTimestamps = {
+      ...appro,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    return this.http.post<Approvisionnement>(
+      `${this.apiUrl}/approvisionnements`,
+      approWithTimestamps,
+      { headers: this.headers }
+    );
   }
 
   /**
    * Met à jour un approvisionnement
    */
   updateApprovisionnement(id: string, appro: Partial<Approvisionnement>): Observable<Approvisionnement> {
-    // Version mockée
-    const index = this.mockApprovisionnements.findIndex(a => a.id === id);
-    if (index !== -1) {
-      this.mockApprovisionnements[index] = {
-        ...this.mockApprovisionnements[index],
-        ...appro,
-        updatedAt: new Date()
-      };
-      return of(this.mockApprovisionnements[index]).pipe(delay(500));
-    }
-    throw new Error('Approvisionnement non trouvé');
+    const approWithTimestamp = {
+      ...appro,
+      updatedAt: new Date().toISOString()
+    };
 
-    // Version API
-    // return this.http.put<Approvisionnement>(
-    //   `${this.apiUrl}/approvisionnements/${id}`, 
-    //   appro, 
-    //   { headers: this.headers }
-    // );
+    return this.http.patch<Approvisionnement>(
+      `${this.apiUrl}/approvisionnements/${id}`,
+      approWithTimestamp,
+      { headers: this.headers }
+    );
   }
 
   /**
    * Supprime un approvisionnement
    */
   deleteApprovisionnement(id: string): Observable<void> {
-    // Version mockée
-    this.mockApprovisionnements = this.mockApprovisionnements.filter(a => a.id !== id);
-    return of(void 0).pipe(delay(500));
-
-    // Version API
-    // return this.http.delete<void>(`${this.apiUrl}/approvisionnements/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/approvisionnements/${id}`);
   }
 
   /**
@@ -186,13 +272,6 @@ export class ApprovisionnementService {
    */
   changeStatut(id: string, statut: 'En attente' | 'Reçu' | 'Annulé'): Observable<Approvisionnement> {
     return this.updateApprovisionnement(id, { statut });
-
-    // Version API
-    // return this.http.patch<Approvisionnement>(
-    //   `${this.apiUrl}/approvisionnements/${id}/statut`, 
-    //   { statut }, 
-    //   { headers: this.headers }
-    // );
   }
 
   /**
@@ -202,40 +281,57 @@ export class ApprovisionnementService {
     return this.changeStatut(id, 'Reçu');
   }
 
-  // ==================== GÉNÉRATION DE RÉFÉRENCE ====================
+  // ==================== RECHERCHE ET FILTRAGE ====================
 
   /**
-   * Génère une référence unique pour un approvisionnement
+   * Recherche d'approvisionnements avec filtres multiples
    */
-  genererReference(): Observable<string> {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    const reference = `APP-${year}${month}-${random}`;
-    
-    return of(reference).pipe(delay(100));
+  searchApprovisionnements(filters: {
+    searchTerm?: string;
+    fournisseurId?: string;
+    statut?: string;
+    dateDebut?: string;
+    dateFin?: string;
+  }): Observable<Approvisionnement[]> {
+    let params = new HttpParams();
 
-    // Version API - vérifier l'unicité
-    // return this.http.post<{reference: string}>(
-    //   `${this.apiUrl}/approvisionnements/generer-reference`, 
-    //   {}, 
-    //   { headers: this.headers }
-    // ).pipe(map(response => response.reference));
-  }
+    // Recherche textuelle sur la référence
+    if (filters.searchTerm) {
+      params = params.set('reference_like', filters.searchTerm);
+    }
 
-  /**
-   * Vérifie si une référence existe déjà
-   */
-  verifierReference(reference: string): Observable<boolean> {
-    // Version mockée
-    const exists = this.mockApprovisionnements.some(a => a.reference === reference);
-    return of(exists).pipe(delay(200));
+    // Filtre par fournisseur
+    if (filters.fournisseurId) {
+      params = params.set('fournisseurId', filters.fournisseurId);
+    }
 
-    // Version API
-    // return this.http.get<{exists: boolean}>(
-    //   `${this.apiUrl}/approvisionnements/verifier-reference/${reference}`
-    // ).pipe(map(response => response.exists));
+    // Filtre par statut
+    if (filters.statut) {
+      params = params.set('statut', filters.statut);
+    }
+
+    // Les filtres de date nécessitent un traitement côté client
+    // car JSON Server ne supporte pas les comparaisons de dates directement
+    return this.http.get<Approvisionnement[]>(
+      `${this.apiUrl}/approvisionnements`,
+      { params }
+    ).pipe(
+      map(appros => {
+        let filtered = appros;
+
+        // Filtre par date de début
+        if (filters.dateDebut) {
+          filtered = filtered.filter(a => a.date >= filters.dateDebut!);
+        }
+
+        // Filtre par date de fin
+        if (filters.dateFin) {
+          filtered = filtered.filter(a => a.date <= filters.dateFin!);
+        }
+
+        return filtered;
+      })
+    );
   }
 
   // ==================== STATISTIQUES ====================
@@ -243,52 +339,109 @@ export class ApprovisionnementService {
   /**
    * Récupère les statistiques des approvisionnements
    */
-  getStatistiques(dateDebut?: Date, dateFin?: Date): Observable<any> {
-    // Version mockée
-    const total = this.mockApprovisionnements.reduce((sum, a) => sum + a.montantTotal, 0);
+  getStatistiques(dateDebut?: string, dateFin?: string): Observable<any> {
+    let params = new HttpParams();
     
-    return of({
-      totalMontant: total,
-      nombreApprovisionnements: this.mockApprovisionnements.length,
-      enAttente: this.mockApprovisionnements.filter(a => a.statut === 'En attente').length,
-      recus: this.mockApprovisionnements.filter(a => a.statut === 'Reçu').length
-    }).pipe(delay(300));
+    return this.http.get<Approvisionnement[]>(`${this.apiUrl}/approvisionnements`, { params })
+      .pipe(
+        map(appros => {
+          // Filtrer par dates si nécessaire
+          let filtered = appros;
+          if (dateDebut) {
+            filtered = filtered.filter(a => a.date >= dateDebut);
+          }
+          if (dateFin) {
+            filtered = filtered.filter(a => a.date <= dateFin);
+          }
 
-    // Version API
-    // const params = new URLSearchParams();
-    // if (dateDebut) params.append('dateDebut', dateDebut.toISOString());
-    // if (dateFin) params.append('dateFin', dateFin.toISOString());
-    // return this.http.get<any>(`${this.apiUrl}/approvisionnements/statistiques?${params}`);
+          // Calculer les statistiques
+          const total = filtered.reduce((sum, a) => sum + a.montantTotal, 0);
+          const enAttente = filtered.filter(a => a.statut === 'En attente').length;
+          const recus = filtered.filter(a => a.statut === 'Reçu').length;
+          const annules = filtered.filter(a => a.statut === 'Annulé').length;
+
+          // Fournisseur principal
+          const parFournisseur = filtered.reduce((acc, appro) => {
+            if (!acc[appro.fournisseur || '']) {
+              acc[appro.fournisseur || ''] = 0;
+            }
+            acc[appro.fournisseur || ''] += appro.montantTotal;
+            return acc;
+          }, {} as Record<string, number>);
+
+          const fournisseurPrincipal = Object.entries(parFournisseur)
+            .sort(([, a], [, b]) => b - a)[0] || ['', 0];
+
+          return {
+            totalMontant: total,
+            nombreApprovisionnements: filtered.length,
+            enAttente,
+            recus,
+            annules,
+            fournisseurPrincipal: {
+              nom: fournisseurPrincipal[0],
+              montant: fournisseurPrincipal[1],
+              pourcentage: total > 0 ? (fournisseurPrincipal[1] / total) * 100 : 0
+            }
+          };
+        })
+      );
   }
 
-  // ==================== EXPORT ====================
+  // ==================== GÉNÉRATION DE RÉFÉRENCE ====================
 
   /**
-   * Exporte les approvisionnements en CSV
+   * Génère une référence unique pour un approvisionnement
    */
-  exportCSV(approvisionnements: Approvisionnement[]): void {
-    const headers = ['Référence', 'Date', 'Fournisseur', 'Montant Total', 'Statut'];
-    const data = approvisionnements.map(a => [
-      a.reference,
-      a.date,
-      a.fournisseur || '',
-      a.montantTotal,
-      a.statut
-    ]);
+  genererReference(): Observable<string> {
+    return this.http.get<Approvisionnement[]>(`${this.apiUrl}/approvisionnements`)
+      .pipe(
+        map(appros => {
+          const date = new Date();
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          
+          // Trouver le dernier numéro utilisé ce mois
+          const prefix = `APP-${year}${month}-`;
+          const existingRefs = appros
+            .map(a => a.reference)
+            .filter(ref => ref.startsWith(prefix))
+            .map(ref => parseInt(ref.split('-')[2]))
+            .filter(num => !isNaN(num));
+          
+          const lastNum = existingRefs.length > 0 ? Math.max(...existingRefs) : 0;
+          const nextNum = String(lastNum + 1).padStart(3, '0');
+          
+          return `${prefix}${nextNum}`;
+        })
+      );
+  }
 
-    let csv = headers.join(',') + '\n';
-    data.forEach(row => {
-      csv += row.join(',') + '\n';
-    });
+  /**
+   * Vérifie si une référence existe déjà
+   */
+  verifierReference(reference: string): Observable<boolean> {
+    return this.http.get<Approvisionnement[]>(
+      `${this.apiUrl}/approvisionnements?reference=${reference}`
+    ).pipe(
+      map(appros => appros.length > 0)
+    );
+  }
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `approvisionnements_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  // ==================== UTILITAIRES ====================
+
+  /**
+   * Enrichit un approvisionnement avec le nom du fournisseur
+   */
+  enrichirAvecFournisseur(appro: Approvisionnement): Observable<Approvisionnement> {
+    return this.getFournisseurById(appro.fournisseurId).pipe(
+      map(fournisseur => ({
+        ...appro,
+        fournisseur: fournisseur.nom
+      }))
+    );
   }
 }
+
+// Import manquant
+import { switchMap } from 'rxjs/operators';

@@ -1,10 +1,11 @@
 import { Component, computed, OnInit, Pipe, signal } from '@angular/core';
 import { FormGroup, Validators, FormBuilder, FormArray, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ApprovisionnementService } from '../../approvisionnement.service';
+import { ApprovisionnementService, ArticleApprovisionnement } from '../../approvisionnement.service';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 
 interface Article {
   id: string;
@@ -32,39 +33,36 @@ interface ArticleAjoute {
   styleUrl: './new-approvisionnement.component.scss'
 })
 export class NewApprovisionnementComponent implements OnInit {
-
-  approForm!: FormGroup;
+ approForm!: FormGroup;
+  
+  // Mode d'édition
+  isEditMode = false;
+  approvisionnementId?: string;
+  
+  // États de chargement
+  isLoading = false;
+  isSaving = false;
+  isLoadingFournisseurs = false;
+  isLoadingArticles = false;
+  
+  // Messages d'erreur
+  errorMessage = '';
   
   // Listes de données
-  fournisseurs: Fournisseur[] = [
-    { id: '1', nom: 'Textiles Dakar SARL', contact: '77 123 45 67' },
-    { id: '2', nom: 'Mercerie Centrale', contact: '76 234 56 78' },
-    { id: '3', nom: 'Tissus Premium', contact: '78 345 67 89' },
-    { id: '4', nom: 'Distribution Moderne', contact: '70 456 78 90' }
-  ];
-
-  articles: Article[] = [
-    { id: '1', nom: 'Coton blanc 100%', prixReference: 5000 },
-    { id: '2', nom: 'Soie naturelle', prixReference: 15000 },
-    { id: '3', nom: 'Lin premium', prixReference: 8000 },
-    { id: '4', nom: 'Polyester résistant', prixReference: 3000 },
-    { id: '5', nom: 'Laine mérinos', prixReference: 12000 },
-    { id: '6', nom: 'Velours de luxe', prixReference: 18000 },
-    { id: '7', nom: 'Denim brut', prixReference: 6000 },
-    { id: '8', nom: 'Satin brillant', prixReference: 10000 }
-  ];
-
+  fournisseurs: Fournisseur[] = [];
+  articles: Article[] = [];
+  
   // Article en cours d'ajout
-  currentArticle: ArticleAjoute = {
+  currentArticle: ArticleApprovisionnement = {
     articleId: '',
     quantite: 0,
     prixUnitaire: 0,
     montant: 0
   };
-
+  
   // Articles ajoutés à l'approvisionnement
-  articlesAjoutes: ArticleAjoute[] = [];
-
+  articlesAjoutes: ArticleApprovisionnement[] = [];
+  
   // Montant total
   get montantTotal(): number {
     return this.articlesAjoutes.reduce((total, item) => total + item.montant, 0);
@@ -72,12 +70,26 @@ export class NewApprovisionnementComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
+    private approvisionnementService: ApprovisionnementService
   ) {}
 
   ngOnInit(): void {
     this.initForm();
-    this.setDefaultDate();
+    this.loadData();
+    
+    // Vérifier si on est en mode édition
+    this.route.params.subscribe(params => {
+      if (params['id']) {
+        this.isEditMode = true;
+        this.approvisionnementId = params['id'];
+        this.loadApprovisionnement(params['id']);
+      } else {
+        this.setDefaultDate();
+        this.genererReference();
+      }
+    });
   }
 
   /**
@@ -93,6 +105,77 @@ export class NewApprovisionnementComponent implements OnInit {
   }
 
   /**
+   * Charge les données (fournisseurs et articles) depuis JSON Server
+   */
+  private loadData(): void {
+    this.isLoading = true;
+
+    // Charger les fournisseurs
+    this.isLoadingFournisseurs = true;
+    this.approvisionnementService.getFournisseurs().pipe(
+      finalize(() => this.isLoadingFournisseurs = false)
+    ).subscribe({
+      next: (data) => {
+        this.fournisseurs = data;
+        console.log('✅ Fournisseurs chargés:', data.length);
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des fournisseurs:', error);
+        this.errorMessage = 'Erreur lors du chargement des fournisseurs. Vérifiez que JSON Server est démarré.';
+      }
+    });
+
+    // Charger les articles
+    this.isLoadingArticles = true;
+    this.approvisionnementService.getArticles().pipe(
+      finalize(() => {
+        this.isLoadingArticles = false;
+        this.isLoading = false;
+      })
+    ).subscribe({
+      next: (data) => {
+        this.articles = data;
+        console.log('✅ Articles chargés:', data.length);
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement des articles:', error);
+        this.errorMessage = 'Erreur lors du chargement des articles. Vérifiez que JSON Server est démarré.';
+      }
+    });
+  }
+
+  /**
+   * Charge un approvisionnement existant pour l'édition
+   */
+  private loadApprovisionnement(id: string): void {
+    this.isLoading = true;
+
+    this.approvisionnementService.getApprovisionnementById(id).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
+      next: (data) => {
+        console.log('✅ Approvisionnement chargé:', data);
+        
+        // Remplir le formulaire
+        this.approForm.patchValue({
+          date: data.date,
+          fournisseur: data.fournisseurId,
+          reference: data.reference,
+          observations: data.observations
+        });
+
+        // Charger les articles
+        this.articlesAjoutes = [...data.articles];
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors du chargement:', error);
+        alert('Erreur lors du chargement de l\'approvisionnement');
+        this.retourListe();
+      }
+    });
+  }
+
+  /**
    * Définit la date par défaut à aujourd'hui
    */
   private setDefaultDate(): void {
@@ -101,15 +184,24 @@ export class NewApprovisionnementComponent implements OnInit {
   }
 
   /**
-   * Génère automatiquement une référence unique
+   * Génère automatiquement une référence unique via JSON Server
    */
   genererReference(): void {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    const reference = `APP-${year}${month}-${random}`;
-    this.approForm.patchValue({ reference });
+    this.approvisionnementService.genererReference().subscribe({
+      next: (reference) => {
+        this.approForm.patchValue({ reference });
+        console.log('✅ Référence générée:', reference);
+      },
+      error: (error) => {
+        console.error('❌ Erreur lors de la génération de la référence:', error);
+        // Fallback : générer localement
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+        this.approForm.patchValue({ reference: `APP-${year}${month}-${random}` });
+      }
+    });
   }
 
   /**
@@ -117,6 +209,18 @@ export class NewApprovisionnementComponent implements OnInit {
    */
   calculerMontant(): void {
     this.currentArticle.montant = this.currentArticle.quantite * this.currentArticle.prixUnitaire;
+  }
+
+  /**
+   * Remplit automatiquement le prix de référence quand un article est sélectionné
+   */
+  onArticleChange(): void {
+    const article = this.articles.find(a => a.id === this.currentArticle.articleId);
+    if (article && article.prixReference) {
+      this.currentArticle.prixUnitaire = article.prixReference;
+      this.calculerMontant();
+      console.log('✅ Prix de référence appliqué:', article.prixReference);
+    }
   }
 
   /**
@@ -134,10 +238,12 @@ export class NewApprovisionnementComponent implements OnInit {
       if (confirm('Cet article est déjà dans la liste. Voulez-vous mettre à jour la quantité ?')) {
         existant.quantite += this.currentArticle.quantite;
         existant.montant = existant.quantite * existant.prixUnitaire;
+        console.log('✅ Article mis à jour:', existant);
       }
     } else {
       // Ajouter l'article à la liste
       this.articlesAjoutes.push({ ...this.currentArticle });
+      console.log('✅ Article ajouté:', this.currentArticle);
     }
 
     // Réinitialiser l'article courant
@@ -149,7 +255,8 @@ export class NewApprovisionnementComponent implements OnInit {
    */
   supprimerArticle(index: number): void {
     if (confirm('Êtes-vous sûr de vouloir supprimer cet article ?')) {
-      this.articlesAjoutes.splice(index, 1);
+      const removed = this.articlesAjoutes.splice(index, 1);
+      console.log('✅ Article supprimé:', removed);
     }
   }
 
@@ -174,7 +281,7 @@ export class NewApprovisionnementComponent implements OnInit {
   }
 
   /**
-   * Soumet le formulaire
+   * Soumet le formulaire - Envoie vers JSON Server
    */
   onSubmit(): void {
     if (this.approForm.invalid) {
@@ -188,22 +295,60 @@ export class NewApprovisionnementComponent implements OnInit {
       return;
     }
 
-    // Préparer les données à envoyer
+    this.isSaving = true;
+    this.errorMessage = '';
+
+    // Récupérer le nom du fournisseur
+    const fournisseur = this.fournisseurs.find(f => f.id === this.approForm.value.fournisseur);
+
+    // Préparer les données
     const approvisionnement = {
-      ...this.approForm.value,
+      reference: this.approForm.value.reference,
+      date: this.approForm.value.date,
+      fournisseurId: this.approForm.value.fournisseur,
+      fournisseur: fournisseur ? fournisseur.nom : '',
+      observations: this.approForm.value.observations || '',
       articles: this.articlesAjoutes,
       montantTotal: this.montantTotal,
-      statut: 'En attente'
+      statut: 'En attente' as const
     };
 
-    console.log('Approvisionnement à enregistrer:', approvisionnement);
+    console.log('📤 Envoi vers JSON Server:', approvisionnement);
 
-    // Ici, vous feriez normalement un appel API
-    // this.approvisionnementService.create(approvisionnement).subscribe(...)
-
-    // Simuler l'enregistrement
-    alert('Approvisionnement enregistré avec succès !');
-    this.retourListe();
+    // Créer ou mettre à jour
+    if (this.isEditMode && this.approvisionnementId) {
+      // Mode édition
+      this.approvisionnementService.updateApprovisionnement(this.approvisionnementId, approvisionnement)
+        .pipe(finalize(() => this.isSaving = false))
+        .subscribe({
+          next: (response) => {
+            console.log('✅ Approvisionnement mis à jour:', response);
+            alert('Approvisionnement mis à jour avec succès !');
+            this.retourListe();
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de la mise à jour:', error);
+            this.errorMessage = 'Erreur lors de la mise à jour. Vérifiez que JSON Server est démarré.';
+            alert('Erreur lors de la mise à jour de l\'approvisionnement');
+          }
+        });
+    } else {
+      // Mode création
+      this.approvisionnementService.createApprovisionnementSimple(approvisionnement)
+        .pipe(finalize(() => this.isSaving = false))
+        .subscribe({
+          next: (response) => {
+            console.log('✅ Approvisionnement créé:', response);
+            alert('Approvisionnement créé avec succès !');
+            this.retourListe();
+          },
+          error: (error) => {
+            console.error('❌ Erreur lors de la création:', error);
+            this.errorMessage = 'Erreur lors de la création. Vérifiez que JSON Server est démarré.';
+            alert('Erreur lors de la création de l\'approvisionnement');
+          }
+        });
+    }
   }
 
   /**
@@ -234,25 +379,5 @@ export class NewApprovisionnementComponent implements OnInit {
         this.markFormGroupTouched(control);
       }
     });
-  }
-
-  /**
-   * Remplit automatiquement le prix de référence quand un article est sélectionné
-   */
-  onArticleChange(): void {
-    const article = this.articles.find(a => a.id === this.currentArticle.articleId);
-    if (article && article.prixReference) {
-      this.currentArticle.prixUnitaire = article.prixReference;
-      this.calculerMontant();
-    }
-  }
-
-  /**
-   * Génère automatiquement la référence si le champ est vide
-   */
-  onFournisseurChange(): void {
-    if (!this.approForm.get('reference')?.value) {
-      this.genererReference();
-    }
   }
 }
